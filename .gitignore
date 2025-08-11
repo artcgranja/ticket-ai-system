@@ -1,0 +1,25 @@
+__pycache__/
+.python-version
+.venv/
+.env
+# Keep example env tracked
+!.env.example
+.env.*
+.idea/
+.vscode/
+*.pyc
+dist/
+build/
+.ruff_cache/
+*.sqlite
+/.DS_Store
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
