@@ -4,6 +4,8 @@ from typing import Optional, Dict
 
 from langchain_core.tools import tool
 from app.schemas.ticket_schemas import Ticket
+from app.models.ticket_model import TicketModel
+from app.db import session
 
 @tool
 def create_ticket(ticket: Ticket) -> Dict:
@@ -11,17 +13,16 @@ def create_ticket(ticket: Ticket) -> Dict:
     Create a new ticket.
 
     Use this tool to validate and serialize a support ticket using the `Ticket` Pydantic schema.
-    It does not persist data; database writes and integrations should be implemented in a
-    service/repository layer.
+    Persists the ticket to the database using the global scoped SQLAlchemy session.
 
     Args:
         ticket (Ticket): Pydantic model with ticket fields:
-            - id_usuario (str): ID of the user creating the ticket.
+            - user_id (str): ID of the user creating the ticket.
             - thread_id (str): Conversation/thread ID related to the ticket.
-            - nome_usuario (str): Display name of the user.
-            - tema (str): Ticket subject.
-            - descricao (str): Detailed description of the issue or request.
-            - risco (Literal["baixo", "medio", "alto"]): Risk level.
+            - user_name (str): Display name of the user.
+            - subject (str): Ticket subject.
+            - description (str): Detailed description of the issue or request.
+            - risk (Literal["low", "medium", "high"]): Risk level.
 
     Returns:
         Dict: The ticket data serialized to a plain dictionary.
@@ -33,28 +34,31 @@ def create_ticket(ticket: Ticket) -> Dict:
         - Keep the description concise for LLM consumption.
         - Call this tool only when all required fields are available.
 
-    Example:
+        Example:
         ```python
         from app.schemas.ticket_schemas import Ticket
 
         payload = Ticket(
-            id_usuario="u1",
+            user_id="u1",
             thread_id="u1:chat-001",
-            nome_usuario="Ana",
-            tema="Login issue",
-            descricao="Cannot sign in since yesterday",
-            risco="medio",
+            user_name="Ana",
+            subject="Login issue",
+            description="Cannot sign in since yesterday",
+            risk="medium",
         )
 
         result = create_ticket(payload)
         # {
-        #   'id_usuario': 'u1',
+        #   'user_id': 'u1',
         #   'thread_id': 'u1:chat-001',
-        #   'nome_usuario': 'Ana',
-        #   'tema': 'Login issue',
-        #   'descricao': 'Cannot sign in since yesterday',
-        #   'risco': 'medio'
+        #   'user_name': 'Ana',
+        #   'subject': 'Login issue',
+        #   'description': 'Cannot sign in since yesterday',
+        #   'risk': 'medium'
         # }
         ```
     """
-    return ticket.model_dump()
+    ticket_model = TicketModel.from_ticket(ticket)
+    session.add(ticket_model)
+    session.commit()
+    return ticket_model.to_ticket().model_dump()
