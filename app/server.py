@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from .agent import build_agent
+from .db import init_db
 
 app = FastAPI(title="Ticket AI Agent")
 _agent = None
@@ -31,4 +32,9 @@ def chat(inp: ChatInput) -> Dict[str, Any]:
     out = agent.invoke({"messages": inp.message}, context={"thread_id": inp.thread_id, "user_id": inp.user_id})
     return {"message": out["messages"][-1].content}
 
+
+@app.on_event("startup")
+def on_startup() -> None:
+    # Cria tabelas no início da aplicação
+    init_db()
 

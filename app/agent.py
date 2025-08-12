@@ -6,8 +6,8 @@ from langchain.chat_models import init_chat_model
 from langgraph.prebuilt import create_react_agent
 from langgraph.runtime import get_runtime
 
-from .tools import get_weather
 from .context import Ctx
+from .tools.ticket_tool import create_ticket
 
 
 def _require_env(name: str) -> str:
@@ -27,11 +27,11 @@ def _prompt(state):
 def build_agent(checkpointer, store):
     _require_env("OPENAI_API_KEY")
     model = init_chat_model("openai:gpt-4o-mini", temperature=0)
-    model_with_tools = model.bind_tools([get_weather])
+    model_with_tools = model.bind_tools([create_ticket])
 
     agent = create_react_agent(
         model=model_with_tools,
-        tools=[get_weather],
+        tools=[create_ticket],
         prompt=_prompt,
         context_schema=Ctx,
         checkpointer=checkpointer,
