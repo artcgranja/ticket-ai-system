@@ -24,13 +24,7 @@ def create_ticket(ticket: Ticket) -> Dict:
     plain dict, including the server-generated `unique_id` (UUIDv4) used for tracking.
 
     Args:
-        ticket: Pydantic model with the required fields:
-            - user_id (str): ID of the user creating the ticket
-            - thread_id (str): Conversation/thread ID related to the ticket
-            - user_name (str): Display name of the user
-            - subject (str): Ticket subject
-            - description (str): Detailed description of the issue or request
-            - risk ("low"|"medium"|"high"): Ticket risk level
+        ticket
 
     Returns:
         Dict: Serialized ticket data, including `unique_id`.
