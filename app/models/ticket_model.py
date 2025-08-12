@@ -1,9 +1,10 @@
 from enum import Enum as PyEnum
+import uuid
 
 from sqlalchemy import Column, Integer, String, Enum as SAEnum
 
 from app.schemas.ticket_schemas import Ticket
-from .base import Base
+from .base import Base, BaseModel
 
 class Risco(PyEnum):
     baixo = "low"
@@ -11,7 +12,7 @@ class Risco(PyEnum):
     alto = "high"
 
 
-class TicketModel(Base):
+class TicketModel(BaseModel):
     __tablename__ = "tickets"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, index=True)
@@ -20,6 +21,14 @@ class TicketModel(Base):
     subject = Column(String, index=True)
     description = Column(String, index=True)
     risk = Column(SAEnum(Risco, name="risco_enum"), index=True)
+    unique_id = Column(
+        String(36),
+        index=True,
+        unique=True,
+        nullable=False,
+        default=lambda: str(uuid.uuid4()),
+    )
+
 
     def to_ticket(self) -> Ticket:
         return Ticket(
@@ -29,6 +38,7 @@ class TicketModel(Base):
             subject=self.subject,
             description=self.description,
             risk=self.risk.value if isinstance(self.risk, Risco) else self.risk,
+            unique_id=self.unique_id,
         )
 
     @staticmethod
