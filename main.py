@@ -31,7 +31,7 @@ def main():
             config=cfg,
             context={"user_id": user_id},
         ):
-            print(update)
+            print(update["agent"]["messages"][-1].content)
 
         final = agent.invoke(
             {"messages": [{"role": "user", "content": "What's my name?"}]},
