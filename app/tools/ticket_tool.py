@@ -28,12 +28,6 @@ def create_ticket(ticket: Ticket) -> Dict:
 
     Returns:
         Dict: Serialized ticket data, including `unique_id`.
-
-    Raises:
-        pydantic.ValidationError: If the payload does not comply with the schema.
-
-    Notes:
-        Keep the description concise. Call this tool only when all required fields are available.
     """
     ticket_model = TicketModel.from_ticket(ticket)
     session.add(ticket_model)
